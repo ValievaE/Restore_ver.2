@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
             removedItems.addAll(Objects.requireNonNull(savedInstanceState.getIntegerArrayList(KEY)));
         }
 
-        fillContent();
+        
+        deleteRemoveItems(fillContent());
 
         String[] from = new String[]{"title", "subtitle"};
         int[] to = new int[]{R.id.textViewTitle, R.id.textViewSubtitle};
@@ -86,12 +87,15 @@ public class MainActivity extends AppCompatActivity {
             map.put("subtitle", String.valueOf(arrayContent[i].length()));
             content.add(map);
         }
+        return content;
+    }
 
+    private List<Map<String,String>> deleteRemoveItems(List<Map<String,String>> content){
+        content = fillContent();
         for (int i: removedItems){
             content.remove(i);
         }
         return content;
-
     }
 
 }
