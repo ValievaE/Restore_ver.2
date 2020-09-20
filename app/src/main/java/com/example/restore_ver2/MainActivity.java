@@ -8,9 +8,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,12 +20,6 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    private List<Map<String,String>> content;
-    private ListView listView;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private SimpleAdapter adapter;
-    private String[] arrayContent;
 
     private static final String KEY = "key";
     private ArrayList<Integer> removedItems = new ArrayList<>();
@@ -39,15 +33,22 @@ public class MainActivity extends AppCompatActivity {
             removedItems.addAll(Objects.requireNonNull(savedInstanceState.getIntegerArrayList(KEY)));
         }
 
-        
+        init();
         deleteRemoveItems(fillContent());
+    }
 
+    private BaseAdapter createAdapter(List<Map<String,String>> content){
         String[] from = new String[]{"title", "subtitle"};
         int[] to = new int[]{R.id.textViewTitle, R.id.textViewSubtitle};
-        adapter = new SimpleAdapter(this, content, R.layout.list_item, from, to);
-        listView = findViewById(R.id.listView);
-        listView.setAdapter(adapter);
+       return new SimpleAdapter(this, content, R.layout.list_item, from, to);
+    }
 
+    private void init(){
+        final List<Map<String,String>> content = fillContent();
+        final BaseAdapter adapter = createAdapter(content);
+        final ListView listView = findViewById(R.id.listView);
+
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -78,24 +79,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<Map<String,String>> fillContent() {
-        arrayContent = getString(R.string.large_text).split("\\n\\n");
-        content = new ArrayList<>();
+        List<Map<String,String>> result = new ArrayList<>();
+
+        String[] arrayContent = getString(R.string.large_text).split("\\n\\n");
+
         Map<String, String> map;
+
         for (int i = 0; i < arrayContent.length; i++) {
             map = new HashMap<>();
             map.put("title", arrayContent[i]);
             map.put("subtitle", String.valueOf(arrayContent[i].length()));
-            content.add(map);
+            result.add(map);
         }
-        return content;
+        return result;
     }
 
-    private List<Map<String,String>> deleteRemoveItems(List<Map<String,String>> content){
-        content = fillContent();
+    private List<Map<String,String>> deleteRemoveItems(List<Map<String,String>> result){
+        result = fillContent();
         for (int i: removedItems){
-            content.remove(i);
+            result.remove(i);
         }
-        return content;
+        return result;
     }
 
 }
